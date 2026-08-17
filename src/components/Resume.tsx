@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FileText, Download, Eye, ExternalLink, ShieldCheck, CheckCircle2, GraduationCap, X } from 'lucide-react';
+import { FileText, Download, Eye, ShieldCheck, GraduationCap, X, Printer } from 'lucide-react';
 import { usePortfolio } from '../context/PortfolioContext';
 import { sounds } from '../utils/audio';
 
@@ -49,6 +49,11 @@ Official Verified Resume — Dixit Gautambhai Dabhi
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+  };
+
+  const handlePrintPDF = () => {
+    sounds.playClick();
+    window.print();
   };
 
   return (
@@ -108,7 +113,16 @@ Official Verified Resume — Dixit Gautambhai Dabhi
               className="px-6 py-3.5 rounded-xl bg-cyber-green text-cyber-bg font-heading font-bold text-sm flex items-center gap-2 shadow-[0_0_20px_rgba(0,255,102,0.4)] hover:shadow-[0_0_30px_rgba(0,255,102,0.7)] hover:scale-[1.02] transition-all"
             >
               <Download className="w-4 h-4" />
-              <span>Download Resume (.txt)</span>
+              <span>Download (.txt)</span>
+            </button>
+
+            <button
+              onClick={handlePrintPDF}
+              onMouseEnter={() => sounds.playHover()}
+              className="px-6 py-3.5 rounded-xl bg-cyber-cyan text-cyber-bg font-heading font-bold text-sm flex items-center gap-2 shadow-[0_0_20px_rgba(0,240,255,0.4)] hover:shadow-[0_0_30px_rgba(0,240,255,0.7)] hover:scale-[1.02] transition-all"
+            >
+              <Printer className="w-4 h-4" />
+              <span>Print / Save PDF</span>
             </button>
 
             <button
@@ -120,7 +134,7 @@ Official Verified Resume — Dixit Gautambhai Dabhi
               className="px-6 py-3.5 rounded-xl bg-cyber-card border border-cyber-cyan/40 text-white font-heading font-semibold text-sm flex items-center gap-2 hover:bg-cyber-cyan/10 hover:border-cyber-cyan transition-all"
             >
               <Eye className="w-4 h-4 text-cyber-cyan" />
-              <span>View Interactive Resume</span>
+              <span>Interactive Viewer</span>
             </button>
           </div>
         </div>
@@ -178,12 +192,20 @@ Official Verified Resume — Dixit Gautambhai Dabhi
             </div>
 
             <div className="flex items-center justify-between pt-4 border-t border-cyber-border/60">
-              <button
-                onClick={handleDownloadResume}
-                className="px-4 py-2 rounded-xl bg-cyber-green text-cyber-bg font-heading font-bold text-xs flex items-center gap-2"
-              >
-                <Download className="w-4 h-4" /> Download Resume
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleDownloadResume}
+                  className="px-4 py-2 rounded-xl bg-cyber-green text-cyber-bg font-heading font-bold text-xs flex items-center gap-2"
+                >
+                  <Download className="w-4 h-4" /> Download
+                </button>
+                <button
+                  onClick={handlePrintPDF}
+                  className="px-4 py-2 rounded-xl bg-cyber-cyan text-cyber-bg font-heading font-bold text-xs flex items-center gap-2"
+                >
+                  <Printer className="w-4 h-4" /> Print / Save PDF
+                </button>
+              </div>
               <button
                 onClick={() => setIsResumeModalOpen(false)}
                 className="px-4 py-2 rounded-xl bg-cyber-dark border border-cyber-border text-xs font-mono text-gray-300"
