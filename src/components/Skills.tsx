@@ -1,150 +1,161 @@
 import React, { useState } from 'react';
-import { Cpu, ShieldCheck, Code, Wrench, Sparkles, Search } from 'lucide-react';
-import { usePortfolio } from '../context/PortfolioContext';
-import { sounds } from '../utils/audio';
+import { Shield, Code2, Globe, Terminal, Cpu, Search, CheckCircle2 } from 'lucide-react';
+import { PORTFOLIO_DATA } from '../data/portfolioData';
 
 export const Skills: React.FC = () => {
-  const { skills } = usePortfolio();
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
-  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
-  const categories = ['All', ...skills.map(s => s.category)];
+  const getCategoryIcon = (iconName: string) => {
+    switch (iconName) {
+      case 'Shield': return <Shield className="w-5 h-5 text-[#00ff9d]" />;
+      case 'Code2': return <Code2 className="w-5 h-5 text-cyan-400" />;
+      case 'Globe': return <Globe className="w-5 h-5 text-blue-400" />;
+      case 'Terminal': default: return <Terminal className="w-5 h-5 text-emerald-400" />;
+    }
+  };
 
-  const getLevelBadgeClass = (level: string) => {
+  const categories = ['All', ...PORTFOLIO_DATA.skillCategories.map((c) => c.title)];
+
+  const filteredCategories = PORTFOLIO_DATA.skillCategories
+    .filter((cat) => selectedCategory === 'All' || cat.title === selectedCategory)
+    .map((cat) => ({
+      ...cat,
+      skills: cat.skills.filter((skill) =>
+        skill.name.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    }))
+    .filter((cat) => cat.skills.length > 0);
+
+  const getLevelBadge = (level: 'Proficient' | 'Intermediate' | 'Exploring') => {
     switch (level) {
-      case 'Practical':
-        return 'bg-cyber-cyan/15 text-cyber-cyan border-cyber-cyan/40 shadow-[0_0_10px_rgba(0,240,255,0.2)]';
-      case 'Familiar':
-        return 'bg-cyber-green/15 text-cyber-green border-cyber-green/40';
-      case 'Learning':
-        return 'bg-purple-500/15 text-purple-400 border-purple-500/40';
-      case 'Beginner':
-      default:
-        return 'bg-blue-500/15 text-blue-400 border-blue-500/40';
+      case 'Proficient':
+        return (
+          <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-950/80 text-emerald-400 border border-emerald-500/30">
+            PROFICIENT
+          </span>
+        );
+      case 'Intermediate':
+        return (
+          <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-cyan-950/80 text-cyan-400 border border-cyan-500/30">
+            INTERMEDIATE
+          </span>
+        );
+      case 'Exploring':
+        return (
+          <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-blue-950/80 text-blue-400 border border-blue-500/30">
+            EXPLORING
+          </span>
+        );
     }
   };
-
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'Cybersecurity':
-        return <ShieldCheck className="w-4 h-4 text-cyber-cyan" />;
-      case 'Programming':
-        return <Code className="w-4 h-4 text-cyber-green" />;
-      case 'Tools & Technologies':
-        return <Wrench className="w-4 h-4 text-purple-400" />;
-      case 'Other':
-      default:
-        return <Sparkles className="w-4 h-4 text-blue-400" />;
-    }
-  };
-
-  const filteredSkills = skills.filter(cat => {
-    if (selectedCategory !== 'All' && cat.category !== selectedCategory) return false;
-    return true;
-  }).map(cat => ({
-    ...cat,
-    items: cat.items.filter(item =>
-      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.level.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  })).filter(cat => cat.items.length > 0);
 
   return (
-    <section id="skills" className="py-20 relative z-10 bg-cyber-dark/40">
+    <section id="skills" className="py-24 relative z-10 bg-[#080b12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
-        <div className="flex flex-col items-center text-center mb-12">
-          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-cyber-green/10 border border-cyber-green/30 text-cyber-green text-xs font-mono mb-3">
+        <div className="text-center space-y-3 mb-12">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0d1624] border border-[#00ff9d]/30 text-xs font-mono text-[#00ff9d]">
             <Cpu className="w-3.5 h-3.5" />
-            <span>OPERATIONAL COMPETENCIES & TOOLKITS</span>
+            <span>02 // TECHNICAL MATRIX</span>
           </div>
-          <h2 className="font-heading font-extrabold text-3xl sm:text-5xl text-white tracking-tight">
-            Technical <span className="text-cyber-green">Skills Matrix</span>
+          <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight font-heading">
+            Skills & <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00ff9d] to-cyan-400">Competencies</span>
           </h2>
-          <p className="text-cyber-muted text-xs font-mono mt-2">
-            [AUTHENTIC PROFICIENCY TAGS — NO ARTIFICIAL PERCENTAGES]
+          <p className="text-slate-400 text-sm max-w-xl mx-auto font-sans">
+            Structured view of technical proficiency in cybersecurity domains, programming languages, web stacks, and practical tools.
           </p>
-          <div className="w-16 h-1 bg-gradient-to-r from-cyber-green to-cyber-cyan rounded-full mt-3" />
+          <div className="w-20 h-1 bg-gradient-to-r from-[#00ff9d] to-cyan-500 mx-auto rounded-full" />
         </div>
 
-        {/* Filter Controls & Search Bar */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-10">
-          
-          {/* Category Filter Buttons */}
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            {categories.map(cat => (
+        {/* Filter & Search Bar */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-10 bg-[#0b101c] p-3 rounded-2xl border border-slate-800 backdrop-blur-md">
+          {/* Category Tabs */}
+          <div className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 no-scrollbar">
+            {categories.map((cat) => (
               <button
                 key={cat}
-                onClick={() => {
-                  sounds.playClick();
-                  setSelectedCategory(cat);
-                }}
-                onMouseEnter={() => sounds.playHover()}
-                className={`px-4 py-2 rounded-xl text-xs font-mono transition-all duration-200 flex items-center gap-2 ${
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all cursor-pointer ${
                   selectedCategory === cat
-                    ? 'bg-cyber-cyan text-cyber-bg font-bold shadow-[0_0_15px_rgba(0,240,255,0.4)]'
-                    : 'bg-cyber-card border border-cyber-border text-gray-300 hover:border-cyber-cyan/50 hover:text-white'
+                    ? 'bg-[#00ff9d]/15 text-[#00ff9d] border border-[#00ff9d]/40 shadow-[0_0_12px_rgba(0,255,157,0.2)] font-semibold'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
                 }`}
               >
-                {cat !== 'All' && getCategoryIcon(cat)}
-                <span>{cat}</span>
+                {cat}
               </button>
             ))}
           </div>
 
-          {/* Search Box */}
+          {/* Search Input */}
           <div className="relative w-full md:w-64">
-            <Search className="w-4 h-4 text-cyber-muted absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Search skill or level..."
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-              className="w-full bg-cyber-card border border-cyber-border rounded-xl pl-9 pr-4 py-2 text-xs font-mono text-white placeholder-cyber-muted focus:outline-none focus:border-cyber-cyan"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search skill (e.g. Python, OSINT)..."
+              className="w-full bg-[#07090e] border border-slate-700/80 rounded-xl pl-9 pr-3 py-1.5 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-[#00ff9d]/50 font-mono"
             />
           </div>
         </div>
 
-        {/* Skills Cards Grid */}
-        <div className="space-y-8">
-          {filteredSkills.map(cat => (
+        {/* Skill Matrix Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {filteredCategories.map((category, idx) => (
             <div
-              key={cat.category}
-              className="bg-cyber-card/80 border border-cyber-border/80 rounded-2xl p-6 backdrop-blur-xl shadow-cyber-card"
+              key={idx}
+              className="bg-[#0b101b]/90 border border-slate-800/90 hover:border-[#00ff9d]/30 rounded-2xl p-6 backdrop-blur-xl transition-all duration-300 shadow-lg flex flex-col justify-between"
             >
-              <div className="flex items-center gap-3 mb-4 pb-3 border-b border-cyber-border/60">
-                <div className="p-2 rounded-lg bg-cyber-dark border border-cyber-border">
-                  {getCategoryIcon(cat.category)}
+              <div>
+                {/* Category Header */}
+                <div className="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-xl bg-[#0e1626] border border-slate-700">
+                      {getCategoryIcon(category.iconName)}
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-white font-heading">
+                        {category.title}
+                      </h3>
+                      <p className="text-xs text-slate-400 font-sans">
+                        {category.description}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-heading font-bold text-lg text-white">{cat.category}</h3>
-                  <p className="text-xs font-mono text-cyber-muted">{cat.description}</p>
+
+                {/* Skills Cards Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                  {category.skills.map((skill, sIdx) => (
+                    <div
+                      key={sIdx}
+                      className="p-3 rounded-xl bg-[#0e1626]/80 border border-slate-800 hover:border-emerald-500/40 hover:bg-[#111b2f] transition-all flex items-center justify-between group"
+                    >
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#00ff9d] opacity-70 group-hover:opacity-100 transition-opacity" />
+                        <span className="text-xs font-semibold text-slate-200 group-hover:text-white transition-colors">
+                          {skill.name}
+                        </span>
+                      </div>
+                      {getLevelBadge(skill.level)}
+                    </div>
+                  ))}
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-3">
-                {cat.items.map(item => (
-                  <div
-                    key={item.name}
-                    onMouseEnter={() => sounds.playHover()}
-                    className="skill-badge group relative flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-cyber-dark/80 border border-cyber-border/70 hover:border-cyber-cyan transition-all duration-200 hover:scale-[1.02]"
-                  >
-                    <span className="font-heading font-medium text-sm text-gray-200 group-hover:text-white">
-                      {item.name}
-                    </span>
-                    <span
-                      className={`px-2.5 py-0.5 rounded-full text-[11px] font-mono border ${getLevelBadgeClass(
-                        item.level
-                      )}`}
-                    >
-                      {item.level}
-                    </span>
-                  </div>
-                ))}
+              <div className="mt-5 pt-3 border-t border-slate-800/60 flex items-center justify-between text-[11px] font-mono text-slate-400">
+                <span>SKILLS COUNT: {category.skills.length}</span>
+                <span className="text-emerald-400">VERIFIED STACK</span>
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Note Disclaimer */}
+        <div className="mt-8 text-center text-xs font-mono text-slate-400 max-w-lg mx-auto bg-[#0d1320] py-2 px-4 rounded-xl border border-slate-800/80">
+          💡 Skill levels reflect hands-on experience & continuous project exploration.
         </div>
 
       </div>

@@ -1,34 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Terminal, Volume2, VolumeX, Menu, X, Command, Lock } from 'lucide-react';
-import { usePortfolio } from '../context/PortfolioContext';
-import { sounds } from '../utils/audio';
+import { Shield, Menu, X } from 'lucide-react';
+import { Github, Linkedin } from './SocialIcons';
+import { PORTFOLIO_DATA } from '../data/portfolioData';
 
-export const Navbar: React.FC = () => {
-  const { profile, setIsAdminOpen, setIsCommandPaletteOpen, audioEnabled, setAudioEnabled } = usePortfolio();
-  const [isScrolled, setIsScrolled] = useState(false);
+interface NavbarProps {
+  activeSection: string;
+  setActiveSection: (section: string) => void;
+}
+
+export const Navbar: React.FC<NavbarProps> = ({ activeSection, setActiveSection }) => {
+  const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState('home');
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-
-      const sections = ['home', 'about', 'skills', 'projects', 'certifications', 'achievements', 'resume', 'contact'];
-      const scrollPos = window.scrollY + 200;
-
-      for (const section of sections) {
-        const el = document.getElementById(section);
-        if (el) {
-          const top = el.offsetTop;
-          const height = el.offsetHeight;
-          if (scrollPos >= top && scrollPos < top + height) {
-            setActiveSection(section);
-            break;
-          }
-        }
+      if (window.scrollY > 20) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
       }
     };
-
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -39,169 +30,137 @@ export const Navbar: React.FC = () => {
     { id: 'skills', label: 'Skills' },
     { id: 'projects', label: 'Projects' },
     { id: 'certifications', label: 'Certifications' },
-    { id: 'achievements', label: 'Experience' },
+    { id: 'experience', label: 'Experience' },
     { id: 'resume', label: 'Resume' },
     { id: 'contact', label: 'Contact' },
   ];
 
-  const toggleAudio = () => {
-    const next = !audioEnabled;
-    setAudioEnabled(next);
-    sounds.setEnabled(next);
-    if (next) sounds.playClick();
-  };
-
   const handleNavClick = (id: string) => {
-    sounds.playClick();
+    setActiveSection(id);
     setMobileMenuOpen(false);
-    const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
   return (
-    <nav
+    <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
-          ? 'bg-cyber-dark/90 backdrop-blur-md border-b border-cyber-border/80 shadow-cyber-card py-3'
+        scrolled
+          ? 'bg-[#07090e]/85 backdrop-blur-md border-b border-[#00ff9d]/20 py-3 shadow-[0_4px_25px_rgba(0,0,0,0.5)]'
           : 'bg-transparent py-5'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
-          {/* Logo / Callsign */}
-          <button
-            onClick={() => handleNavClick('home')}
-            onMouseEnter={() => sounds.playHover()}
-            className="flex items-center gap-3 group text-left"
+          {/* Logo / Title */}
+          <a
+            href="#home"
+            onClick={(e) => {
+              e.preventDefault();
+              handleNavClick('home');
+            }}
+            className="flex items-center gap-2.5 group cursor-pointer"
           >
-            <div className="relative w-10 h-10 rounded-lg bg-cyber-card border border-cyber-cyan/40 flex items-center justify-center group-hover:border-cyber-cyan group-hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all">
-              <Shield className="w-5 h-5 text-cyber-cyan group-hover:scale-110 transition-transform" />
-              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-cyber-green rounded-full animate-ping" />
+            <div className="relative flex items-center justify-center w-9 h-9 rounded-lg bg-[#0d131f] border border-[#00ff9d]/30 group-hover:border-[#00ff9d] transition-all group-hover:shadow-[0_0_15px_rgba(0,255,157,0.4)]">
+              <Shield className="w-5 h-5 text-[#00ff9d] group-hover:scale-110 transition-transform" />
+              <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#00ff9d] animate-ping" />
             </div>
-            <div>
-              <div className="font-heading font-bold text-lg text-white group-hover:text-cyber-cyan transition-colors tracking-wide flex items-center gap-1.5">
-                {profile.name}
-                <span className="text-xs text-cyber-green font-mono">_SEC</span>
-              </div>
-              <div className="text-[11px] font-mono text-cyber-muted tracking-wider uppercase">
-                B.Tech CSE Cybersecurity
-              </div>
+            <div className="flex flex-col">
+              <span className="font-heading font-bold text-lg text-white tracking-wider group-hover:text-[#00ff9d] transition-colors flex items-center gap-1.5">
+                DIXIT DABHI
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-cyan-950/80 text-cyan-400 border border-cyan-500/30">
+                  SEC
+                </span>
+              </span>
+              <span className="text-[10px] font-mono text-slate-400 tracking-tight hidden sm:block">
+                SYS_STATUS: <span className="text-[#00ff9d]">SECURE</span>
+              </span>
             </div>
-          </button>
+          </a>
 
           {/* Desktop Nav Links */}
-          <div className="hidden lg:flex items-center gap-1 bg-cyber-card/60 backdrop-blur-md p-1.5 rounded-full border border-cyber-border">
-            {navLinks.map(link => (
-              <button
-                key={link.id}
-                onClick={() => handleNavClick(link.id)}
-                onMouseEnter={() => sounds.playHover()}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-mono transition-all duration-200 ${
-                  activeSection === link.id
-                    ? 'bg-cyber-cyan/20 text-cyber-cyan border border-cyber-cyan/40 shadow-[0_0_10px_rgba(0,240,255,0.3)]'
-                    : 'text-gray-300 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                {link.label}
-              </button>
-            ))}
-          </div>
+          <nav className="hidden lg:flex items-center gap-1 bg-[#0d121c]/70 border border-slate-800/80 p-1.5 rounded-full backdrop-blur-md">
+            {navLinks.map((link) => {
+              const isActive = activeSection === link.id;
+              return (
+                <button
+                  key={link.id}
+                  onClick={() => handleNavClick(link.id)}
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer ${
+                    isActive
+                      ? 'bg-[#00ff9d]/15 text-[#00ff9d] border border-[#00ff9d]/30 shadow-[0_0_12px_rgba(0,255,157,0.2)] font-semibold'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                  }`}
+                >
+                  {link.label}
+                </button>
+              );
+            })}
+          </nav>
 
-          {/* Controls & Status */}
-          <div className="hidden md:flex items-center gap-3">
-            {/* Status Indicator */}
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyber-green/10 border border-cyber-green/30 text-cyber-green text-[11px] font-mono">
-              <span className="w-2 h-2 rounded-full bg-cyber-green animate-pulse" />
-              <span>AVAILABLE FOR COLLABORATION</span>
+          {/* Social Icons & Status Badge */}
+          <div className="hidden sm:flex items-center gap-3">
+            <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#0a101d] border border-emerald-500/20 text-[11px] font-mono text-slate-300">
+              <span className="w-2 h-2 rounded-full bg-[#00ff9d] animate-pulse" />
+              <span className="text-emerald-400 font-medium">OPEN FOR OPPS</span>
             </div>
 
-            {/* Sound Toggle */}
-            <button
-              onClick={toggleAudio}
-              title={audioEnabled ? 'Mute Cyber Audio' : 'Unmute Cyber Audio'}
-              className="p-2 rounded-lg bg-cyber-card border border-cyber-border text-gray-300 hover:text-cyber-cyan hover:border-cyber-cyan/50 transition-colors"
+            <a
+              href={PORTFOLIO_DATA.personal.githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 rounded-lg bg-[#0d121c] border border-slate-800 text-slate-400 hover:text-[#00ff9d] hover:border-[#00ff9d]/40 transition-all hover:shadow-[0_0_10px_rgba(0,255,157,0.2)]"
+              aria-label="GitHub Profile"
             >
-              {audioEnabled ? <Volume2 className="w-4 h-4 text-cyber-cyan" /> : <VolumeX className="w-4 h-4 text-gray-500" />}
-            </button>
+              <Github className="w-4 h-4" />
+            </a>
 
-            {/* Ctrl + K Command Palette */}
-            <button
-              onClick={() => {
-                sounds.playClick();
-                setIsCommandPaletteOpen(true);
-              }}
-              title="Command Palette (Ctrl + K)"
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-cyber-card border border-cyber-border text-xs font-mono text-gray-300 hover:text-cyber-cyan hover:border-cyber-cyan/50 transition-colors"
+            <a
+              href={PORTFOLIO_DATA.personal.linkedinUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 rounded-lg bg-[#0d121c] border border-slate-800 text-slate-400 hover:text-cyan-400 hover:border-cyan-500/40 transition-all hover:shadow-[0_0_10px_rgba(6,182,212,0.2)]"
+              aria-label="LinkedIn Profile"
             >
-              <Command className="w-3.5 h-3.5 text-cyber-cyan" />
-              <span>CTRL+K</span>
-            </button>
-
-            {/* Admin Lock */}
-            <button
-              onClick={() => {
-                sounds.playClick();
-                setIsAdminOpen(true);
-              }}
-              title="Admin System Control (/admin)"
-              className="p-2 rounded-lg bg-cyber-card border border-cyber-border text-gray-300 hover:text-cyber-purple hover:border-cyber-purple/50 transition-colors"
-            >
-              <Lock className="w-4 h-4 text-cyber-purple" />
-            </button>
+              <Linkedin className="w-4 h-4" />
+            </a>
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Hamburger Button */}
           <div className="flex items-center gap-2 lg:hidden">
             <button
-              onClick={() => {
-                sounds.playClick();
-                setIsCommandPaletteOpen(true);
-              }}
-              className="p-2 rounded-lg bg-cyber-card border border-cyber-border text-cyber-cyan"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2.5 rounded-lg bg-[#0d121c] border border-[#00ff9d]/30 text-[#00ff9d] hover:bg-[#00ff9d]/10 transition-colors"
+              aria-label="Toggle Navigation Menu"
             >
-              <Terminal className="w-5 h-5" />
-            </button>
-
-            <button
-              onClick={() => {
-                sounds.playClick();
-                setMobileMenuOpen(!mobileMenuOpen);
-              }}
-              className="p-2 rounded-lg bg-cyber-card border border-cyber-border text-gray-300 hover:text-white"
-            >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Dropdown Navigation */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-cyber-dark/95 backdrop-blur-xl border-b border-cyber-border px-4 pt-4 pb-6 space-y-3 mt-3 animate-in slide-in-from-top duration-200">
-          <div className="flex items-center justify-between pb-3 border-b border-cyber-border/50">
-            <div className="flex items-center gap-2 text-xs font-mono text-cyber-green">
-              <span className="w-2 h-2 rounded-full bg-cyber-green animate-pulse" />
-              AVAILABLE FOR COLLABORATION
-            </div>
-            <button
-              onClick={toggleAudio}
-              className="p-1.5 rounded-md bg-cyber-card text-cyber-cyan border border-cyber-border"
-            >
-              {audioEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-            </button>
+        <div className="lg:hidden bg-[#0a0e17]/95 border-b border-[#00ff9d]/20 backdrop-blur-xl px-4 pt-3 pb-6 space-y-2 mt-2 shadow-2xl animate-in slide-in-from-top duration-200">
+          <div className="flex items-center justify-between px-2 pb-2 mb-2 border-b border-slate-800 text-xs font-mono text-slate-400">
+            <span className="flex items-center gap-1.5 text-emerald-400">
+              <span className="w-2 h-2 rounded-full bg-[#00ff9d] animate-pulse" />
+              SYSTEM ACTIVE
+            </span>
+            <span>DIXIT DABHI portfolio</span>
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
-            {navLinks.map(link => (
+          <div className="grid grid-cols-2 gap-1.5">
+            {navLinks.map((link) => (
               <button
                 key={link.id}
                 onClick={() => handleNavClick(link.id)}
-                className={`w-full text-left px-4 py-2.5 rounded-lg text-sm font-mono transition-colors ${
+                className={`text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                   activeSection === link.id
-                    ? 'bg-cyber-cyan/20 text-cyber-cyan border border-cyber-cyan/40'
-                    : 'text-gray-300 bg-cyber-card/40 border border-cyber-border/40 hover:bg-cyber-card'
+                    ? 'bg-[#00ff9d]/15 text-[#00ff9d] border border-[#00ff9d]/30 font-semibold'
+                    : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
                 }`}
               >
                 {link.label}
@@ -209,20 +168,26 @@ export const Navbar: React.FC = () => {
             ))}
           </div>
 
-          <div className="pt-2 flex justify-between">
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                setIsAdminOpen(true);
-              }}
-              className="w-full py-2 rounded-lg bg-cyber-purple/20 border border-cyber-purple/40 text-cyber-purple text-xs font-mono flex items-center justify-center gap-2"
+          <div className="flex items-center justify-around pt-4 border-t border-slate-800/80 mt-3">
+            <a
+              href={PORTFOLIO_DATA.personal.githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 hover:text-[#00ff9d] text-xs font-mono"
             >
-              <Lock className="w-3.5 h-3.5" />
-              Admin Portal
-            </button>
+              <Github className="w-4 h-4 text-[#00ff9d]" /> GitHub
+            </a>
+            <a
+              href={PORTFOLIO_DATA.personal.linkedinUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 hover:text-cyan-400 text-xs font-mono"
+            >
+              <Linkedin className="w-4 h-4 text-cyan-400" /> LinkedIn
+            </a>
           </div>
         </div>
       )}
-    </nav>
+    </header>
   );
 };

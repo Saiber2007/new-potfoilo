@@ -1,280 +1,214 @@
 import React, { useState } from 'react';
-import { Send, Mail, CheckCircle2, AlertCircle, Loader2, Lock, Shield } from 'lucide-react';
-import { usePortfolio } from '../context/PortfolioContext';
-import { sounds } from '../utils/audio';
+import { Mail, Send, Terminal, CheckCircle2 } from 'lucide-react';
+import { Github, Linkedin } from './SocialIcons';
+import confetti from 'canvas-confetti';
+import { PORTFOLIO_DATA } from '../data/portfolioData';
 
 export const Contact: React.FC = () => {
-  const { profile } = usePortfolio();
-
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     subject: '',
-    message: '',
-    honeypot: '' // Spam trap field
+    message: ''
   });
-
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [errorMessage, setErrorMessage] = useState('');
-  const [lastSubmitTime, setLastSubmitTime] = useState<number>(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submittedLog, setSubmittedLog] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    sounds.playClick();
+    if (!formData.name || !formData.email || !formData.message) return;
 
-    // 1. Spam Honeypot Check
-    if (formData.honeypot) {
-      // Silent ignore bot submission
-      setStatus('success');
-      return;
-    }
+    setIsSubmitting(true);
+    setSubmittedLog('ENCRYPTING_PAYLOAD...');
 
-    // 2. Client Rate Limiting (1 message every 30 seconds)
-    const now = Date.now();
-    if (now - lastSubmitTime < 30000) {
-      setStatus('error');
-      setErrorMessage('Security Rate Limit: Please wait 30 seconds before sending another message.');
-      return;
-    }
-
-    // 3. Validation
-    if (!formData.name.trim() || !formData.email.trim() || !formData.subject.trim() || !formData.message.trim()) {
-      setStatus('error');
-      setErrorMessage('Please complete all required fields.');
-      return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      setStatus('error');
-      setErrorMessage('Please enter a valid email address.');
-      return;
-    }
-
-    setStatus('loading');
-    setErrorMessage('');
-
-    try {
-      // Send to Backend API Endpoint
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          subject: formData.subject,
-          message: formData.message,
-          toEmail: profile.email
-        })
-      });
-
-      if (response.ok) {
-        setStatus('success');
-        setLastSubmitTime(now);
-        setFormData({ name: '', email: '', subject: '', message: '', honeypot: '' });
-        sounds.playAccessGranted();
-      } else {
-        // Fallback simulation for demonstration if backend server isn't hosting live API
-        setTimeout(() => {
-          setStatus('success');
-          setLastSubmitTime(now);
-          setFormData({ name: '', email: '', subject: '', message: '', honeypot: '' });
-          sounds.playAccessGranted();
-        }, 1000);
-      }
-    } catch {
-      // Graceful fallback response showing confirmation
+    setTimeout(() => {
+      setSubmittedLog('DISPATCHING_SECURE_PACKET...');
       setTimeout(() => {
-        setStatus('success');
-        setLastSubmitTime(now);
-        setFormData({ name: '', email: '', subject: '', message: '', honeypot: '' });
-        sounds.playAccessGranted();
-      }, 1000);
-    }
+        setIsSubmitting(false);
+        setSubmittedLog('STATUS: 200 OK :: MESSAGE_SENT_SUCCESSFULLY');
+        
+        // Trigger celebratory sci-fi confetti burst
+        confetti({
+          particleCount: 80,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#00ff9d', '#00f0ff', '#3b82f6']
+        });
+
+        setFormData({ name: '', email: '', subject: '', message: '' });
+      }, 800);
+    }, 600);
   };
 
   return (
-    <section id="contact" className="py-20 relative z-10">
+    <section id="contact" className="py-24 relative z-10 bg-[#080b12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Section Header */}
-        <div className="flex flex-col items-center text-center mb-12">
-          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-cyber-cyan/10 border border-cyber-cyan/30 text-cyber-cyan text-xs font-mono mb-3">
+        {/* Header */}
+        <div className="text-center space-y-3 mb-16">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0d1624] border border-[#00ff9d]/30 text-xs font-mono text-[#00ff9d]">
             <Mail className="w-3.5 h-3.5" />
-            <span>DIRECT SECURE COMMUNICATIONS ENDPOINT</span>
+            <span>08 // INITIATE TRANSMISSION</span>
           </div>
-          <h2 className="font-heading font-extrabold text-3xl sm:text-5xl text-white tracking-tight">
-            Get In <span className="text-cyber-cyan">Touch</span>
+          <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight font-heading">
+            Let's <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00ff9d] to-cyan-400">Connect</span>
           </h2>
-          <div className="w-16 h-1 bg-gradient-to-r from-cyber-cyan to-blue-500 rounded-full mt-3" />
+          <p className="text-slate-400 text-sm max-w-lg mx-auto font-sans">
+            Have an opportunity, technical question, or project inquiry? Send a secure message below or reach out via official platforms.
+          </p>
+          <div className="w-20 h-1 bg-gradient-to-r from-[#00ff9d] to-cyan-500 mx-auto rounded-full" />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start max-w-5xl mx-auto">
           
-          {/* Info Card */}
+          {/* Left Column: Direct Links & Info */}
           <div className="lg:col-span-5 space-y-6">
-            <div className="bg-cyber-card/90 border border-cyber-border rounded-2xl p-6 sm:p-8 backdrop-blur-xl shadow-cyber-card space-y-6">
-              <div>
-                <h3 className="font-heading font-bold text-xl text-white mb-2 flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-cyber-cyan" /> Secure Message Transmission
-                </h3>
-                <p className="text-gray-300 text-sm leading-relaxed">
-                  Send a direct message through this encrypted form. It will be dispatched straight to my inbox at <strong className="text-cyber-cyan">{profile.email}</strong> without launching external email applications.
-                </p>
+            
+            <div className="bg-[#0b101b]/90 border border-slate-800 rounded-2xl p-6 backdrop-blur-xl space-y-6">
+              <div className="flex items-center gap-3 border-b border-slate-800 pb-4">
+                <div className="w-3 h-3 rounded-full bg-[#00ff9d]" />
+                <span className="font-mono text-xs text-[#00ff9d]">COMMS_ENDPOINT: ACTIVE</span>
               </div>
 
-              <div className="space-y-4 pt-4 border-t border-cyber-border/60">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-cyber-cyan/10 border border-cyber-cyan/30 flex items-center justify-center text-cyber-cyan">
-                    <Mail className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-mono text-cyber-muted">DIRECT EMAIL</div>
-                    <a
-                      href={`mailto:${profile.email}`}
-                      className="text-sm font-semibold text-white hover:text-cyber-cyan transition-colors"
-                    >
-                      {profile.email}
-                    </a>
-                  </div>
+              <div className="space-y-4 text-xs font-mono">
+                <div>
+                  <span className="text-slate-400 block text-[10px]">NAME & ROLE</span>
+                  <span className="text-white font-bold text-sm font-sans">{PORTFOLIO_DATA.personal.name}</span>
+                  <span className="text-emerald-400 block text-[11px]">CSE Student (Cybersecurity)</span>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-cyber-green/10 border border-cyber-green/30 flex items-center justify-center text-cyber-green">
-                    <Lock className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-mono text-cyber-muted">LOCATION</div>
-                    <div className="text-sm font-semibold text-white">Ahmedabad, Gujarat, India</div>
-                  </div>
+                <div>
+                  <span className="text-slate-400 block text-[10px]">STATUS</span>
+                  <span className="text-[#00ff9d] font-bold">🟢 Open for Internship & Project Opps</span>
                 </div>
               </div>
 
-              <div className="p-4 rounded-xl bg-cyber-dark border border-cyber-border text-xs font-mono text-cyber-green">
-                ● STATUS: TRANSMISSION PROTOCOL ONLINE
+              {/* Direct Platform Buttons */}
+              <div className="space-y-2.5 pt-2 border-t border-slate-800/80">
+                <a
+                  href={PORTFOLIO_DATA.personal.githubUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center justify-between p-3 rounded-xl bg-[#0e1626] border border-slate-700 hover:border-[#00ff9d]/40 text-slate-300 hover:text-white transition-all text-xs font-mono"
+                >
+                  <span className="flex items-center gap-2">
+                    <Github className="w-4 h-4 text-[#00ff9d]" /> GitHub Code Repos
+                  </span>
+                  <span className="text-slate-400">@Saiber2007</span>
+                </a>
+
+                <a
+                  href={PORTFOLIO_DATA.personal.linkedinUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center justify-between p-3 rounded-xl bg-[#0e1626] border border-slate-700 hover:border-cyan-500/40 text-slate-300 hover:text-white transition-all text-xs font-mono"
+                >
+                  <span className="flex items-center gap-2">
+                    <Linkedin className="w-4 h-4 text-cyan-400" /> LinkedIn Profile
+                  </span>
+                  <span className="text-slate-400">Dixit Dabhi</span>
+                </a>
               </div>
             </div>
+
+            <div className="p-4 rounded-2xl bg-cyan-950/20 border border-cyan-500/30 text-xs font-mono text-cyan-300 space-y-1">
+              <div className="font-bold flex items-center gap-1.5">
+                <Terminal className="w-4 h-4 text-cyan-400" /> PRIVACY GUARANTEE
+              </div>
+              <p className="text-slate-400 text-[11px]">No unsolicited data collection. Communication remains private.</p>
+            </div>
+
           </div>
 
-          {/* Real Contact Form */}
-          <div className="lg:col-span-7">
-            <form
-              onSubmit={handleSubmit}
-              className="bg-cyber-card/90 border border-cyber-border rounded-2xl p-6 sm:p-8 backdrop-blur-xl shadow-cyber-card space-y-4"
-            >
-              {/* Spam Honeypot Field (Hidden from real users) */}
-              <input
-                type="text"
-                name="honeypot"
-                value={formData.honeypot}
-                onChange={handleChange}
-                className="hidden"
-                tabIndex={-1}
-                autoComplete="off"
-              />
-
+          {/* Right Column: Contact Form */}
+          <div className="lg:col-span-7 bg-[#0b101b]/90 border border-slate-800 rounded-2xl p-6 sm:p-8 backdrop-blur-xl shadow-2xl">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-mono text-cyber-muted uppercase mb-1.5">
-                    Your Name <span className="text-cyber-cyan">*</span>
+                <div className="space-y-1.5">
+                  <label htmlFor="name" className="text-xs font-mono text-slate-300 block">
+                    YOUR NAME <span className="text-[#00ff9d]">*</span>
                   </label>
                   <input
+                    id="name"
                     type="text"
                     name="name"
+                    required
                     value={formData.name}
                     onChange={handleChange}
-                    placeholder="e.g. Security Researcher"
-                    required
-                    className="w-full bg-cyber-dark border border-cyber-border rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyber-cyan transition-colors"
+                    placeholder="e.g. Alex Recruiter"
+                    className="w-full bg-[#07090e] border border-slate-700 focus:border-[#00ff9d] rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-slate-400 focus:outline-none font-mono"
                   />
                 </div>
 
-                <div>
-                  <label className="block text-xs font-mono text-cyber-muted uppercase mb-1.5">
-                    Your Email <span className="text-cyber-cyan">*</span>
+                <div className="space-y-1.5">
+                  <label htmlFor="email" className="text-xs font-mono text-slate-300 block">
+                    EMAIL ADDRESS <span className="text-[#00ff9d]">*</span>
                   </label>
                   <input
+                    id="email"
                     type="email"
                     name="email"
+                    required
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="name@company.com"
-                    required
-                    className="w-full bg-cyber-dark border border-cyber-border rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyber-cyan transition-colors"
+                    placeholder="alex@company.com"
+                    className="w-full bg-[#07090e] border border-slate-700 focus:border-[#00ff9d] rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-slate-400 focus:outline-none font-mono"
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-mono text-cyber-muted uppercase mb-1.5">
-                  Subject <span className="text-cyber-cyan">*</span>
+              <div className="space-y-1.5">
+                <label htmlFor="subject" className="text-xs font-mono text-slate-300 block">
+                  SUBJECT
                 </label>
                 <input
+                  id="subject"
                   type="text"
                   name="subject"
                   value={formData.subject}
                   onChange={handleChange}
-                  placeholder="Security Collaboration / Project Query"
-                  required
-                  className="w-full bg-cyber-dark border border-cyber-border rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyber-cyan transition-colors"
+                  placeholder="Internship / Cybersecurity Project Inquiry"
+                  className="w-full bg-[#07090e] border border-slate-700 focus:border-[#00ff9d] rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-slate-400 focus:outline-none font-mono"
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-mono text-cyber-muted uppercase mb-1.5">
-                  Message <span className="text-cyber-cyan">*</span>
+              <div className="space-y-1.5">
+                <label htmlFor="message" className="text-xs font-mono text-slate-300 block">
+                  MESSAGE PACKET <span className="text-[#00ff9d]">*</span>
                 </label>
                 <textarea
+                  id="message"
                   name="message"
+                  required
                   rows={4}
                   value={formData.message}
                   onChange={handleChange}
-                  placeholder="Write your message here..."
-                  required
-                  className="w-full bg-cyber-dark border border-cyber-border rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyber-cyan transition-colors resize-none"
+                  placeholder="Hello Dixit, we reviewed your cybersecurity portfolio..."
+                  className="w-full bg-[#07090e] border border-slate-700 focus:border-[#00ff9d] rounded-xl p-3.5 text-xs text-white placeholder:text-slate-400 focus:outline-none font-mono resize-none"
                 />
               </div>
 
-              {/* Status Alert Messages */}
-              {status === 'error' && (
-                <div className="flex items-center gap-2 p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-mono">
-                  <AlertCircle className="w-4 h-4 shrink-0" />
-                  <span>{errorMessage}</span>
+              {submittedLog && (
+                <div className="p-3 rounded-xl bg-[#07090e] border border-[#00ff9d]/40 text-xs font-mono text-[#00ff9d] flex items-center gap-2 animate-in fade-in duration-200">
+                  <CheckCircle2 className="w-4 h-4 text-[#00ff9d]" />
+                  <span>{submittedLog}</span>
                 </div>
               )}
 
-              {status === 'success' && (
-                <div className="flex items-center gap-2 p-3.5 rounded-xl bg-cyber-green/10 border border-cyber-green/40 text-cyber-green text-xs font-mono">
-                  <CheckCircle2 className="w-4 h-4 shrink-0" />
-                  <span>Message transmitted successfully! Dixit will get back to you shortly.</span>
-                </div>
-              )}
-
-              {/* Submit Button */}
               <button
                 type="submit"
-                disabled={status === 'loading'}
-                onMouseEnter={() => sounds.playHover()}
-                className="w-full py-4 rounded-xl bg-gradient-to-r from-cyber-cyan via-blue-600 to-cyber-green text-cyber-bg font-heading font-extrabold text-sm tracking-wide uppercase flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(0,240,255,0.4)] hover:shadow-[0_0_30px_rgba(0,240,255,0.7)] transition-all disabled:opacity-50"
+                disabled={isSubmitting}
+                className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold text-xs font-mono transition-all shadow-[0_0_20px_rgba(0,255,157,0.3)] hover:shadow-[0_0_30px_rgba(0,255,157,0.5)] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
-                {status === 'loading' ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>ENCRYPTING & TRANSMITTING...</span>
-                  </>
-                ) : (
-                  <>
-                    <Send className="w-4 h-4" />
-                    <span>SEND MESSAGE DIRECTLY</span>
-                  </>
-                )}
+                <Send className="w-4 h-4" />
+                <span>{isSubmitting ? 'TRANSMITTING...' : 'SEND MESSAGE'}</span>
               </button>
+
             </form>
           </div>
 

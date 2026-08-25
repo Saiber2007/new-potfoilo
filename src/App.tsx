@@ -1,57 +1,81 @@
-import React from 'react';
-import { PortfolioProvider } from './context/PortfolioContext';
-import { OmCursor } from './components/OmCursor';
-import { BackgroundCanvas } from './components/BackgroundCanvas';
+import React, { useState, useEffect } from 'react';
+import { CyberBackground } from './components/CyberBackground';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { About } from './components/About';
 import { Skills } from './components/Skills';
 import { Projects } from './components/Projects';
 import { Certifications } from './components/Certifications';
-import { Achievements } from './components/Achievements';
-import { Resume } from './components/Resume';
+import { Experience } from './components/Experience';
+import { ResumeSection } from './components/ResumeSection';
+import { ProfessionalPresence } from './components/ProfessionalPresence';
 import { Contact } from './components/Contact';
 import { Footer } from './components/Footer';
-import { AdminModal } from './components/AdminModal';
-import { CommandPalette } from './components/CommandPalette';
+import { ScrollToTop } from './components/ScrollToTop';
 
-export function App() {
+export const App: React.FC = () => {
+  const [activeSection, setActiveSection] = useState<string>('home');
+
+  useEffect(() => {
+    const sections = ['home', 'about', 'skills', 'projects', 'certifications', 'experience', 'resume', 'contact'];
+    
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY + 200;
+
+      for (const sectionId of sections) {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          const top = element.offsetTop;
+          const height = element.offsetHeight;
+
+          if (scrollPosition >= top && scrollPosition < top + height) {
+            setActiveSection(sectionId);
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const handleNavigate = (sectionId: string) => {
+    setActiveSection(sectionId);
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
-    <PortfolioProvider>
-      <div className="relative min-h-screen bg-cyber-bg text-cyber-light font-sans selection:bg-cyber-cyan selection:text-cyber-bg overflow-x-hidden">
-        {/* Custom Om (ॐ) Cursor (Desktop active, touch auto-disabled) */}
-        <OmCursor />
+    <div className="relative min-h-screen bg-[#07090e] text-slate-100 selection:bg-[#00ff9d]/30 selection:text-[#00ff9d] cyber-grid font-sans">
+      
+      {/* Dynamic Cyber Node & Particle Canvas */}
+      <CyberBackground />
 
-        {/* Interactive Mouse Reactive Network & Spotlight Background Canvas */}
-        <BackgroundCanvas />
+      {/* Navigation Header */}
+      <Navbar activeSection={activeSection} setActiveSection={setActiveSection} />
 
-        {/* HUD Scanlines overlay */}
-        <div className="fixed inset-0 pointer-events-none z-[1] opacity-20 bg-[linear-gradient(to_bottom,transparent_50%,rgba(0,0,0,0.4)_51%)] bg-[length:100%_4px]" />
+      {/* Main Page Layout Sections */}
+      <main className="relative z-10">
+        <Hero onNavigate={handleNavigate} />
+        <About />
+        <Skills />
+        <Projects />
+        <Certifications />
+        <Experience />
+        <ResumeSection />
+        <ProfessionalPresence />
+        <Contact />
+      </main>
 
-        {/* Sticky Navbar Header */}
-        <Navbar />
+      {/* Footer & Floating Return to Top */}
+      <Footer />
+      <ScrollToTop />
 
-        {/* Main Section Content */}
-        <main className="relative z-10">
-          <Hero />
-          <About />
-          <Skills />
-          <Projects />
-          <Certifications />
-          <Achievements />
-          <Resume />
-          <Contact />
-        </main>
-
-        {/* Footer */}
-        <Footer />
-
-        {/* Modals & Overlays */}
-        <AdminModal />
-        <CommandPalette />
-      </div>
-    </PortfolioProvider>
+    </div>
   );
-}
+};
 
 export default App;

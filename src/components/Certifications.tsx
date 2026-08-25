@@ -1,156 +1,94 @@
-import React, { useState } from 'react';
-import { Award, ShieldCheck, ExternalLink, Eye, CheckCircle2, Calendar, Hash } from 'lucide-react';
-import { usePortfolio } from '../context/PortfolioContext';
-import { CertificationItem } from '../types';
-import { CertificateModal } from './CertificateModal';
-import { sounds } from '../utils/audio';
+import React from 'react';
+import { Award, ExternalLink, Calendar, ShieldCheck } from 'lucide-react';
+import { PORTFOLIO_DATA } from '../data/portfolioData';
 
 export const Certifications: React.FC = () => {
-  const { certifications } = usePortfolio();
-  const [selectedCert, setSelectedCert] = useState<CertificationItem | null>(null);
-
-  const getBadgeColor = (type: string) => {
-    switch (type) {
-      case 'Hackviser':
-        return 'bg-cyber-cyan/15 text-cyber-cyan border-cyber-cyan/40';
-      case 'Google':
-        return 'bg-blue-500/15 text-blue-400 border-blue-500/40';
-      case 'AWS':
-        return 'bg-amber-500/15 text-amber-400 border-amber-500/40';
-      case 'IEEE':
-        return 'bg-purple-500/15 text-purple-400 border-purple-500/40';
-      case 'Simplilearn':
-        return 'bg-cyber-green/15 text-cyber-green border-cyber-green/40';
-      default:
-        return 'bg-cyber-cyan/10 text-cyber-cyan border-cyber-cyan/30';
-    }
-  };
-
   return (
-    <section id="certifications" className="py-20 relative z-10 bg-cyber-dark/40">
+    <section id="certifications" className="py-24 relative z-10 bg-[#080b12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
-        <div className="flex flex-col items-center text-center mb-12">
-          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-cyber-green/10 border border-cyber-green/30 text-cyber-green text-xs font-mono mb-3">
+        <div className="text-center space-y-3 mb-16">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0d1624] border border-[#00ff9d]/30 text-xs font-mono text-[#00ff9d]">
             <Award className="w-3.5 h-3.5" />
-            <span>VERIFIED CYBERSECURITY & INDUSTRY CREDENTIALS</span>
+            <span>04 // CREDENTIALS & WORKSHOPS</span>
           </div>
-          <h2 className="font-heading font-extrabold text-3xl sm:text-5xl text-white tracking-tight">
-            Certifications & <span className="text-cyber-green">Badges</span>
+          <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight font-heading">
+            Certifications & <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00ff9d] to-cyan-400">Learning</span>
           </h2>
-          <div className="w-16 h-1 bg-gradient-to-r from-cyber-green to-cyber-cyan rounded-full mt-3" />
+          <p className="text-slate-400 text-sm max-w-xl mx-auto font-sans">
+            Hands-on technical workshops, IEEE student chapter activities, and cybersecurity training courses.
+          </p>
+          <div className="w-20 h-1 bg-gradient-to-r from-[#00ff9d] to-cyan-500 mx-auto rounded-full" />
         </div>
 
         {/* Certifications Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {certifications.map(cert => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {PORTFOLIO_DATA.certifications.map((cert) => (
             <div
               key={cert.id}
-              className="cert-card group relative rounded-2xl bg-cyber-card/90 border border-cyber-border/80 p-6 flex flex-col justify-between backdrop-blur-xl shadow-cyber-card transition-all duration-300 hover:border-cyber-green hover:-translate-y-1.5 hover:shadow-[0_0_25px_rgba(0,255,102,0.25)]"
+              className="bg-[#0b101b]/90 border border-slate-800 hover:border-cyan-500/40 rounded-2xl p-6 backdrop-blur-xl transition-all duration-300 shadow-xl flex flex-col justify-between group hover:-translate-y-1"
             >
-              <div>
-                {/* Header Badge & Verification Status */}
-                <div className="flex items-center justify-between mb-4">
-                  <span className={`px-2.5 py-1 rounded-md text-[11px] font-mono font-semibold border ${getBadgeColor(cert.badgeType)}`}>
-                    {cert.badgeType}
+              <div className="space-y-4">
+                {/* Category Badge & Date */}
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <span className="px-2.5 py-1 rounded-md bg-[#0e1626] border border-cyan-500/30 text-[10px] font-mono text-cyan-400 font-bold">
+                    {cert.category}
                   </span>
-
-                  <span className="flex items-center gap-1 text-[11px] font-mono text-cyber-green">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> VERIFIED
-                  </span>
+                  <div className="flex items-center gap-1.5 text-slate-400 font-mono text-xs">
+                    <Calendar className="w-3.5 h-3.5 text-[#00ff9d]" />
+                    <span>{cert.date}</span>
+                  </div>
                 </div>
 
-                <h3 className="font-heading font-bold text-lg text-white mb-1 group-hover:text-cyber-green transition-colors">
-                  {cert.title}
-                </h3>
+                {/* Certificate Title & Organization */}
+                <div className="space-y-1">
+                  <h3 className="text-lg font-bold text-white font-heading group-hover:text-[#00ff9d] transition-colors">
+                    {cert.title}
+                  </h3>
+                  <div className="text-xs font-semibold text-emerald-400 font-mono">
+                    {cert.organization}
+                  </div>
+                </div>
 
-                <p className="text-xs font-mono text-cyber-muted mb-4">
-                  {cert.organization}
-                </p>
-
-                <p className="text-sm text-gray-300 font-sans line-clamp-3 leading-relaxed mb-6">
+                {/* Description */}
+                <p className="text-xs text-slate-300 leading-relaxed font-sans">
                   {cert.description}
                 </p>
               </div>
 
-              <div>
-                {/* Dates & ID */}
-                <div className="space-y-1.5 mb-6 text-xs font-mono text-gray-400 border-t border-b border-cyber-border/60 py-3">
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-1 text-cyber-muted">
-                      <Calendar className="w-3.5 h-3.5" /> Issued:
-                    </span>
-                    <span className="text-white">{cert.date}</span>
-                  </div>
+              <div className="pt-4 border-t border-slate-800/80 mt-6 flex items-center justify-between">
+                <span className="text-[11px] font-mono text-slate-400 flex items-center gap-1">
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#00ff9d]" />
+                  VERIFIED LEARNING
+                </span>
 
-                  {cert.credentialId && (
-                    <div className="flex items-center justify-between">
-                      <span className="flex items-center gap-1 text-cyber-muted">
-                        <Hash className="w-3.5 h-3.5" /> ID:
-                      </span>
-                      <span className="text-cyber-cyan font-semibold">{cert.credentialId}</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Topics Tag List */}
-                <div className="flex flex-wrap gap-1.5 mb-6">
-                  {cert.topics.slice(0, 4).map(topic => (
-                    <span
-                      key={topic}
-                      className="px-2 py-0.5 rounded bg-cyber-dark text-[11px] font-mono text-gray-300 border border-cyber-border/60"
-                    >
-                      {topic}
-                    </span>
-                  ))}
-                  {cert.topics.length > 4 && (
-                    <span className="px-2 py-0.5 rounded bg-cyber-dark text-[11px] font-mono text-cyber-cyan border border-cyber-border/60">
-                      +{cert.topics.length - 4} more
-                    </span>
-                  )}
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex items-center justify-between pt-2">
-                  <button
-                    onClick={() => {
-                      sounds.playClick();
-                      setSelectedCert(cert);
-                    }}
-                    onMouseEnter={() => sounds.playHover()}
-                    className="inline-flex items-center gap-1.5 text-xs font-mono text-cyber-cyan hover:text-white transition-colors"
+                {cert.credentialUrl ? (
+                  <a
+                    href={cert.credentialUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="p-2 rounded-lg bg-[#0e1626] text-cyan-400 hover:text-white border border-slate-700 hover:border-cyan-500 transition-colors"
+                    title="View Credential"
                   >
-                    <Eye className="w-4 h-4" />
-                    <span>View Certificate</span>
-                  </button>
-
-                  {cert.verificationUrl && (
-                    <a
-                      href={cert.verificationUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() => sounds.playClick()}
-                      onMouseEnter={() => sounds.playHover()}
-                      className="inline-flex items-center gap-1.5 text-xs font-mono text-cyber-green hover:underline"
-                    >
-                      <span>Verify</span>
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
-                  )}
-                </div>
+                    <ExternalLink className="w-4 h-4" />
+                  </a>
+                ) : (
+                  <span className="text-[10px] font-mono text-slate-400 px-2 py-0.5 rounded bg-slate-900 border border-slate-800">
+                    CERTIFICATE / ATTENDANCE
+                  </span>
+                )}
               </div>
             </div>
           ))}
         </div>
 
-      </div>
+        {/* Note */}
+        <div className="mt-12 text-center text-xs font-mono text-slate-400">
+          📜 Additional industry certifications in progress as part of continuous cybersecurity learning.
+        </div>
 
-      {/* Lightbox Certificate Viewer Modal */}
-      <CertificateModal
-        cert={selectedCert}
-        onClose={() => setSelectedCert(null)}
-      />
+      </div>
     </section>
   );
 };

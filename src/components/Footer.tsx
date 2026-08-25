@@ -1,102 +1,83 @@
-import React from 'react';
-import { Shield, Mail, ExternalLink, ArrowUp } from 'lucide-react';
-import { usePortfolio } from '../context/PortfolioContext';
-import { GithubIcon, LinkedinIcon } from './Icons';
-import { sounds } from '../utils/audio';
+import React, { useState, useEffect } from 'react';
+import { Shield, Lock } from 'lucide-react';
+import { Github, Linkedin } from './SocialIcons';
+import { PORTFOLIO_DATA } from '../data/portfolioData';
 
 export const Footer: React.FC = () => {
-  const { profile } = usePortfolio();
-  const currentYear = new Date().getFullYear();
+  const [utcTime, setUtcTime] = useState<string>('');
 
-  const scrollToTop = () => {
-    sounds.playClick();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      setUtcTime(now.toUTCString().replace('GMT', 'UTC'));
+    };
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
-    <footer className="relative z-10 border-t border-cyber-border bg-cyber-dark/95 text-cyber-light py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
-          
-          {/* Brand Info */}
-          <div className="md:col-span-5 space-y-3">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-cyber-cyan/10 border border-cyber-cyan/30 flex items-center justify-center text-cyber-cyan">
-                <Shield className="w-4 h-4" />
-              </div>
-              <span className="font-heading font-bold text-lg text-white tracking-wide">
-                {profile.name}
+    <footer className="bg-[#05070c] border-t border-slate-800/80 py-12 relative z-10 font-mono text-xs text-slate-400">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6 pb-8 border-b border-slate-800/60">
+          {/* Logo Brand */}
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-[#0d131f] border border-[#00ff9d]/30">
+              <Shield className="w-5 h-5 text-[#00ff9d]" />
+            </div>
+            <div>
+              <span className="font-heading font-bold text-white text-base block tracking-wide">
+                DIXIT DABHI
+              </span>
+              <span className="text-[11px] text-emerald-400">
+                CSE CYBERSECURITY PORTFOLIO
               </span>
             </div>
-            <p className="text-xs font-mono text-cyber-cyan">
-              Cybersecurity • Computer Science • Ethical Hacking
-            </p>
-            <p className="text-xs text-cyber-muted font-sans max-w-sm">
-              B.Tech CSE student specializing in cybersecurity engineering, OSINT reconnaissance, digital forensics, and Python security tools.
-            </p>
           </div>
 
-          {/* Quick Links */}
-          <div className="md:col-span-4 flex flex-wrap gap-4 text-xs font-mono">
+          {/* Live UTC Cyber Clock */}
+          <div className="px-3 py-1.5 rounded-lg bg-[#0a0e17] border border-slate-800 text-[11px] flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#00ff9d] animate-pulse" />
+            <span>SYS_TIME: <span className="text-white font-bold">{utcTime || 'UTC_ACTIVE'}</span></span>
+          </div>
+
+          {/* Social Links */}
+          <div className="flex items-center gap-3">
             <a
-              href={profile.linkedin}
+              href={PORTFOLIO_DATA.personal.githubUrl}
               target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => sounds.playClick()}
-              onMouseEnter={() => sounds.playHover()}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-cyber-card border border-cyber-border text-gray-300 hover:text-cyber-cyan hover:border-cyber-cyan/50 transition-colors"
+              rel="noreferrer"
+              className="p-2.5 rounded-lg bg-[#0c111c] border border-slate-800 hover:border-[#00ff9d]/40 text-slate-400 hover:text-[#00ff9d] transition-all"
+              aria-label="GitHub Profile"
             >
-              <LinkedinIcon className="w-3.5 h-3.5" />
-              <span>LinkedIn</span>
-              <ExternalLink className="w-3 h-3" />
+              <Github className="w-4 h-4" />
             </a>
-
             <a
-              href={profile.github}
+              href={PORTFOLIO_DATA.personal.linkedinUrl}
               target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => sounds.playClick()}
-              onMouseEnter={() => sounds.playHover()}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-cyber-card border border-cyber-border text-gray-300 hover:text-cyber-cyan hover:border-cyber-cyan/50 transition-colors"
+              rel="noreferrer"
+              className="p-2.5 rounded-lg bg-[#0c111c] border border-slate-800 hover:border-cyan-500/40 text-slate-400 hover:text-cyan-400 transition-all"
+              aria-label="LinkedIn Profile"
             >
-              <GithubIcon className="w-3.5 h-3.5" />
-              <span>GitHub</span>
-              <ExternalLink className="w-3 h-3" />
-            </a>
-
-            <a
-              href={`mailto:${profile.email}`}
-              onClick={() => sounds.playClick()}
-              onMouseEnter={() => sounds.playHover()}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-cyber-card border border-cyber-border text-gray-300 hover:text-cyber-green hover:border-cyber-green/50 transition-colors"
-            >
-              <Mail className="w-3.5 h-3.5" />
-              <span>Email</span>
+              <Linkedin className="w-4 h-4" />
             </a>
           </div>
-
-          {/* Scroll to Top */}
-          <div className="md:col-span-3 flex justify-start md:justify-end">
-            <button
-              onClick={scrollToTop}
-              onMouseEnter={() => sounds.playHover()}
-              className="p-3 rounded-xl bg-cyber-card border border-cyber-cyan/40 text-cyber-cyan hover:bg-cyber-cyan hover:text-cyber-bg shadow-[0_0_15px_rgba(0,240,255,0.3)] transition-all flex items-center gap-2 text-xs font-mono"
-            >
-              <span>TOP OF HUB</span>
-              <ArrowUp className="w-4 h-4" />
-            </button>
-          </div>
-
         </div>
 
-        {/* Bottom Copyright */}
-        <div className="mt-8 pt-6 border-t border-cyber-border/50 flex flex-col sm:flex-row items-center justify-between text-xs font-mono text-cyber-muted gap-2">
-          <div>
-            © {currentYear} {profile.fullName}. All security rights reserved.
-          </div>
-          <div className="flex items-center gap-2 text-cyber-green">
-            <span className="w-2 h-2 rounded-full bg-cyber-green animate-pulse" />
-            <span>SECURE SYSTEM DEPLOYED</span>
+        {/* Footer Bottom Line */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left text-[11px]">
+          <p>
+            © 2026 <span className="text-white font-bold">Dixit Dabhi</span>. All rights reserved.
+          </p>
+
+          <p className="text-slate-400 flex items-center justify-center gap-1.5">
+            Built with curiosity, code & <span className="text-[#00ff9d] font-semibold">cybersecurity</span>.
+          </p>
+
+          <div className="flex items-center gap-2 text-slate-400">
+            <Lock className="w-3.5 h-3.5 text-cyan-400" />
+            <span>SECURITY_LEVEL: HIGH</span>
           </div>
         </div>
 
